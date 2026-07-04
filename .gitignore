@@ -1,2 +1,11 @@
+# Generated data files
 *.csv
 *.txt
+
+# Python virtual environments
+venv/
+env/
+
+# Python temporary and cache files
+__pycache__/
+*.pyc

@@ -4,37 +4,40 @@ import random
 import uuid
 import os
 from datetime import datetime, timedelta
+from faker import Faker
 
-def generate_data(file_format, separator, language):
+def generate_data(file_format, separator, language, num_rows):
     # Base configuration
     start_date = datetime(2023, 1, 1)
-    initial_headcount = 30
     
-    # 1. Localization Dictionaries (Data Language)
+    # 1. Localization Dictionaries & Faker Initialization
     if language == 'es':
+        fake = Faker('es_CL')
         departments = ["Tecnologia", "Finanzas", "Recursos Humanos", "Operaciones", "Comercial"]
-        first_names = ["Juan", "Maria", "Carlos", "Ana", "Pedro", "Claudia", "Diego", "Patricia"]
-        last_names = ["Munoz", "Rojas", "Diaz", "Perez", "Soto", "Contreras", "Silva", "Martinez"]
         job_titles = ["Data Engineer", "Analista BI", "Gerente", "Coordinador", "Ejecutivo"]
     else:
+        fake = Faker('en_US')
         departments = ["Technology", "Finance", "Human Resources", "Operations", "Sales"]
-        first_names = ["John", "Mary", "Charles", "Anna", "Peter", "Chloe", "James", "Patricia"]
-        last_names = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis"]
         job_titles = ["Data Engineer", "BI Analyst", "Manager", "Coordinator", "Executive"]
 
-    # 2. Data Generation (Simplified for Employees Dimension)
+    # 2. Data Generation
     dim_employees_rows = []
     
-    for i in range(1, initial_headcount + 1):
-        full_name = f"{random.choice(first_names)} {random.choice(last_names)}"
+    for i in range(1, num_rows + 1):
+        full_name = fake.name()
         department = random.choice(departments)
         job_title = random.choice(job_titles)
         salary = random.randint(800000, 3500000)
+        
+        city = fake.city()
+        email = fake.ascii_company_email()
         
         record = {
             "surrogate_id": str(uuid.uuid4())[:8],
             "natural_employee_id": i,
             "full_name": full_name,
+            "email": email,
+            "city": city,
             "department": department,
             "job_title": job_title,
             "base_salary": salary,
@@ -44,8 +47,6 @@ def generate_data(file_format, separator, language):
 
     # 3. Data Export
     file_name = f"dim_employees_{language}.{file_format}"
-    
-    # Extract column names for the header
     columns = dim_employees_rows[0].keys()
 
     with open(file_name, mode='w', newline='', encoding='utf-8') as file:
@@ -53,16 +54,19 @@ def generate_data(file_format, separator, language):
         writer.writeheader()
         writer.writerows(dim_employees_rows)
 
-    print(f"[*] Success! File generated: {file_name}")
-    print(
-        f"[*] Records: {len(dim_employees_rows)} "
-        f"| Delimiter: '{separator}' "
-        f"| Language: '{language}' "
-        f"| Format: '{file_format}'"
-    )
+    print(f"""
+    =========================================
+    [*] SUCCESS! Dataset generation complete.
+    =========================================
+    - File Name: {file_name}
+    - Format:    {file_format.upper()}
+    - Records:   {len(dim_employees_rows)}
+    - Delimiter: '{separator}'
+    - Language:  '{language}'
+    =========================================
+    """)
 
 if __name__ == "__main__":
-    # CLI arguments configuration
     parser = argparse.ArgumentParser(description="BI Datasets Generator - Portfolio")
     
     parser.add_argument('--format', type=str, choices=['csv', 'txt'], default='csv',
@@ -73,8 +77,16 @@ if __name__ == "__main__":
     
     parser.add_argument('--lang', type=str, choices=['es', 'en'], default='en',
                         dest='language', help="Language of the generated data (es or en)")
+                        
+    parser.add_argument('--rows', type=int, default=30,
+                        dest='num_rows', help="Number of records to generate")
 
     args = parser.parse_args()
 
     print("Starting data generation...")
-    generate_data(file_format=args.file_format, separator=args.separator, language=args.language)
+    generate_data(
+        file_format=args.file_format, 
+        separator=args.separator, 
+        language=args.language,
+        num_rows=args.num_rows
+    )
