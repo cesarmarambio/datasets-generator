@@ -6,10 +6,9 @@ import os
 from datetime import datetime, timedelta
 from faker import Faker
 
-def generate_data(file_format, separator, language):
+def generate_data(file_format, separator, language, num_rows):
     # Base configuration
     start_date = datetime(2023, 1, 1)
-    initial_headcount = 30
     
     # 1. Localization Dictionaries & Faker Initialization
     if language == 'es':
@@ -24,13 +23,12 @@ def generate_data(file_format, separator, language):
     # 2. Data Generation
     dim_employees_rows = []
     
-    for i in range(1, initial_headcount + 1):
+    for i in range(1, num_rows + 1):
         full_name = fake.name()
         department = random.choice(departments)
         job_title = random.choice(job_titles)
         salary = random.randint(800000, 3500000)
         
-        # Nuevas columnas generadas por Faker
         city = fake.city()
         email = fake.ascii_company_email()
         
@@ -79,8 +77,16 @@ if __name__ == "__main__":
     
     parser.add_argument('--lang', type=str, choices=['es', 'en'], default='en',
                         dest='language', help="Language of the generated data (es or en)")
+                        
+    parser.add_argument('--rows', type=int, default=30,
+                        dest='num_rows', help="Number of records to generate")
 
     args = parser.parse_args()
 
     print("Starting data generation...")
-    generate_data(file_format=args.file_format, separator=args.separator, language=args.language)
+    generate_data(
+        file_format=args.file_format, 
+        separator=args.separator, 
+        language=args.language,
+        num_rows=args.num_rows
+    )
