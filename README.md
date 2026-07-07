@@ -2,7 +2,11 @@
 
 A Command-Line Interface (CLI) Python tool designed to generate realistic, high-volume dimensional datasets for Business Intelligence portfolios and Data Engineering pipelines. 
 
-Currently, the tool supports modular data domains, starting with a synthetic **Employee Dimension** table, which is ideal for testing and building People Analytics dashboards. It uses the `Faker` library to ensure data realism, high cardinality in unique fields (names, emails), and controlled cardinality in business categories (departments, job titles).
+Currently, the tool supports modular data domains, allowing users to generate synthetic data for different corporate departments:
+* **Employee Dimension (`employees`):** Ideal for testing and building People Analytics dashboards.
+* **Sales Facts (`sales`):** Designed for transactional analysis, revenue tracking, and financial dashboards.
+
+It uses the `Faker` library to ensure data realism, high cardinality in unique fields (names, emails, transaction IDs), and controlled cardinality in business categories (departments, product categories).
 
 ## Features
 
@@ -47,7 +51,7 @@ Currently, the tool supports modular data domains, starting with a synthetic **E
 Run the `generator.py` script from your terminal using the available arguments.
 
 ### Arguments:
-* `--domain` : Data domain to generate (`employees`) (Default: `employees`)
+* `--domain` : Data domain to generate (`employees` or `sales`) (Default: `employees`)
 * `--rows`   : Number of records to generate (Default: 30)
 * `--lang`   : Language/Locale of the data (`en` or `es`) (Default: `en`)
 * `--format` : Output file format (`csv` or `txt`) (Default: `csv`)
@@ -65,13 +69,19 @@ python generator.py --domain employees --rows 100
 python generator.py --domain employees --lang es --rows 15000 --sep ;
 ```
 
+**3. Generate 500 sales transactions in Spanish (CLP currency):**
+```bash
+python generator.py --domain sales --lang es --rows 500
+```
+
 ## Project Structure
 ```text
 datasets-generator/
 │
 ├── models/                  # Domain-specific data generation models
 │   ├── __init__.py          # Python package initializer
-│   └── employees.py         # Employee dimension logic (People Analytics)
+│   ├── employees.py         # Employee dimension logic (People Analytics)
+│   └── sales.py             # Sales transactional fact logic (Commercial BI)
 │
 ├── generator.py             # Main CLI Orchestrator and exporter
 ├── README.md                # Project documentation

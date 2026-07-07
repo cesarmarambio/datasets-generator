@@ -1,12 +1,13 @@
 import argparse
 import csv
 
-# Importamos nuestra lógica de negocio aislada desde el nuevo paquete
+# Import our isolated business logic from the new package
 from models.employees import get_employee_data
+from models.sales import get_sales_data
 
 def export_data(data, file_name, file_format, separator):
     """
-    Se encarga exclusivamente de escribir el archivo físico.
+    Exclusively handles writing the physical file.
     """
     if not data:
         print("[-] Error: No data to export.")
@@ -22,9 +23,9 @@ def export_data(data, file_name, file_format, separator):
 def main():
     parser = argparse.ArgumentParser(description="BI Datasets Generator - Portfolio")
     
-    # Nuevo argumento para elegir el dominio de datos
-    parser.add_argument('--domain', type=str, choices=['employees'], default='employees',
-                        dest='domain', help="Data domain to generate (e.g., employees)")
+    # New argument to select the data domain
+    parser.add_argument('--domain', type=str, choices=['employees', 'sales'], default='employees',
+                        dest='domain', help="Data domain to generate (e.g., employees, sales)")
     
     parser.add_argument('--format', type=str, choices=['csv', 'txt'], default='csv',
                         dest='file_format', help="Output file format (csv or txt)")
@@ -42,12 +43,15 @@ def main():
 
     print(f"[*] Starting data generation for domain: '{args.domain.upper()}'...")
 
-    # 1. Enrutamiento: Elegimos qué modelo llamar según el dominio seleccionado
+    # 1. Routing: Choose which model to call based on the selected domain
     if args.domain == 'employees':
         dataset = get_employee_data(language=args.language, num_rows=args.num_rows)
         file_name = f"dim_{args.domain}_{args.language}.{args.file_format}"
+    elif args.domain == 'sales':
+        dataset = get_sales_data(language=args.language, num_rows=args.num_rows)
+        file_name = f"fact_{args.domain}_{args.language}.{args.file_format}"
     
-    # 2. Exportación: Pasamos los datos crudos a la función que crea el archivo
+    # 2. Export: Pass the raw data to the file creation function
     export_data(dataset, file_name, args.file_format, args.separator)
 
     print(f"""
